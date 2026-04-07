@@ -8,80 +8,88 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @keyframes glow {
-      0% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #ff0; }
-      100% { text-shadow: 0 0 20px #fff, 0 0 30px #f80, 0 0 40px #f80; }
+      0% { text-shadow: 0 0 5px #fff, 0 0 10px #ff0; }
+      100% { text-shadow: 0 0 10px #fff, 0 0 20px #f80; }
     }
     .billboard-text {
       animation: glow 2s infinite alternate;
       white-space: nowrap;
+      font-family: 'Arial Black', sans-serif;
+      letter-spacing: -1px;
     }
     .watermark {
       position: absolute;
-      bottom: 12%;
-      right: 18%;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 1.2rem;
+      bottom: 5%;
+      right: 5%;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
       font-weight: bold;
-      text-shadow: 0 0 5px #000;
     }
     .bg-option {
       cursor: pointer;
       border: 3px solid transparent;
       transition: all 0.2s ease;
+      height: 60px;
+      object-fit: cover;
+      width: 100%;
+      border-radius: 8px;
     }
     .bg-option.selected {
       border-color: #2563eb;
       box-shadow: 0 0 10px #2563eb;
     }
+    /* perspective container to make text look slightly angled */
+    .billboard-surface {
+      perspective: 1000px;
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+<body class="bg-slate-900 min-h-screen flex flex-col items-center p-6 text-white">
 
-  <h1 class="text-3xl font-bold mb-6 text-gray-800">📢 Text to Billboard</h1>
+  <h1 class="text-3xl font-bold mb-6">📢 Real Billboard Generator</h1>
 
-  <!-- Input Area -->
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mb-6">
-    <label class="block text-gray-700 font-semibold mb-2">Enter your text:</label>
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mb-6 text-gray-800">
+    <label class="block text-gray-700 font-semibold mb-2">Enter your message:</label>
     <input 
       type="text" 
       id="textInput" 
-      placeholder="Type something amazing..."
+      placeholder="YOUR AD HERE"
       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
     >
 
-    <!-- Background Selection -->
-    <label class="block text-gray-700 font-semibold mt-4 mb-2">Choose billboard style:</label>
+    <label class="block text-gray-700 font-semibold mt-4 mb-2">Choose Billboard Location:</label>
     <div class="grid grid-cols-3 gap-3">
-      <img class="bg-option selected" data-src="https://images.unsplash.com/photo-1588507050026-88d042c3c001?auto=format&fit=crop&w=1200&q=80" src="https://images.unsplash.com/photo-1588507050026-88d042c3c001?auto=format&fit=crop&w=300&q=80" alt="Style 1">
-      <img class="bg-option" data-src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=1200&q=80" src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=300&q=80" alt="Style 2">
-      <img class="bg-option" data-src="https://images.unsplash.com/photo-1557180295-68772c7761e6?auto=format&fit=crop&w=1200&q=80" src="https://images.unsplash.com/photo-1557180295-68772c7761e6?auto=format&fit=crop&w=300&q=80" alt="Style 3">
+      <img class="bg-option selected" 
+           data-src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80" 
+           src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=300&q=80" alt="Highway">
+      <img class="bg-option" 
+           data-src="https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=1200&q=80" 
+           src="https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=300&q=80" alt="Urban">
+      <img class="bg-option" 
+           data-src="https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=1200&q=80" 
+           src="https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=300&q=80" alt="Building">
     </div>
 
-    <button 
-      id="downloadBtn"
-      class="mt-4 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition"
-    >
-      📥 Download Image
+    <button id="downloadBtn" class="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+      📥 Save Advertisement
     </button>
   </div>
 
-  <!-- Billboard -->
-  <div id="billboardContainer" class="relative w-full max-w-2xl">
+  <div id="billboardContainer" class="relative w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
     <img 
       id="billboardImage"
-      src="https://images.unsplash.com/photo-1588507050026-88d042c3c001?auto=format&fit=crop&w=1200&q=80" 
+      src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80" 
       alt="Billboard"
-      class="w-full rounded-xl shadow-2xl"
+      class="w-full"
       crossorigin="anonymous"
     >
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[70%] text-center">
-      <p 
-        id="billboardText" 
-        class="billboard-text text-white font-bold uppercase"
-      >
-        Your Text Here
+    
+    <div id="textOverlay" class="absolute top-[28%] left-[24%] w-[51%] h-[35%] flex items-center justify-center overflow-hidden">
+      <p id="billboardText" class="billboard-text text-white font-bold uppercase">
+        YOUR AD HERE
       </p>
     </div>
+    
     <div class="watermark">@azuki</div>
   </div>
 
@@ -91,43 +99,64 @@
     const billboardImage = document.getElementById('billboardImage');
     const downloadBtn = document.getElementById('downloadBtn');
     const container = document.getElementById('billboardContainer');
+    const textOverlay = document.getElementById('textOverlay');
     const bgOptions = document.querySelectorAll('.bg-option');
 
-    // Auto fit text
+    // Custom coordinates for each image to match the "hole" in the billboard
+    const layouts = {
+      "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80": { top: '28%', left: '24%', width: '51%', height: '35%', rotate: '0deg' },
+      "https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=1200&q=80": { top: '15%', left: '33%', width: '30%', height: '55%', rotate: '0deg' },
+      "https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=1200&q=80": { top: '18%', left: '33%', width: '34%', height: '44%', rotate: '0deg' }
+    };
+
     function fitText() {
-      const containerWidth = billboardText.parentElement.clientWidth;
-      const textLength = billboardText.textContent.length;
-      const fontSize = Math.min(80, containerWidth / (textLength * 0.6));
+      const containerWidth = textOverlay.clientWidth;
+      const textLength = billboardText.textContent.length || 1;
+      const fontSize = Math.min(60, (containerWidth * 1.8) / textLength);
       billboardText.style.fontSize = fontSize + 'px';
     }
 
     input.addEventListener('input', () => {
-      billboardText.textContent = input.value || 'Your Text Here';
+      billboardText.textContent = input.value || 'YOUR AD HERE';
       fitText();
     });
 
     window.addEventListener('resize', fitText);
-    fitText();
 
-    // Change background
     bgOptions.forEach(img => {
       img.addEventListener('click', () => {
         bgOptions.forEach(opt => opt.classList.remove('selected'));
         img.classList.add('selected');
-        billboardImage.src = img.dataset.src;
+        
+        const src = img.dataset.src;
+        billboardImage.src = src;
+        
+        // Update overlay position based on the selected image
+        const layout = layouts[src];
+        textOverlay.style.top = layout.top;
+        textOverlay.style.left = layout.left;
+        textOverlay.style.width = layout.width;
+        textOverlay.style.height = layout.height;
+        
+        setTimeout(fitText, 50);
       });
     });
 
-    // Download image
     downloadBtn.addEventListener('click', () => {
-      html2canvas(container, { useCORS: true }).then(canvas => {
+      html2canvas(container, { 
+        useCORS: true,
+        scale: 2 // Higher quality download
+      }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'billboard-image.png';
+        link.download = 'my-billboard.png';
         link.href = canvas.toDataURL();
         link.click();
       });
     });
+
+    // Initial fit
+    setTimeout(fitText, 500);
   </script>
 
 </body>
-</html>
+  </html>
