@@ -3,160 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Text to Billboard</title>
+  <title>Text to Image</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@900&family=Playfair+Display:wght@900&family=Roboto+Mono:wght@700&family=Pacifico&family=Permanent+Marker&family=Monoton&family=Special+Elite&family=Outfit:wght@900&display=swap" rel="stylesheet">
+  
   <style>
-    @keyframes glow {
-      0% { text-shadow: 0 0 5px #fff, 0 0 10px #ff0; }
-      100% { text-shadow: 0 0 10px #fff, 0 0 20px #f80; }
+    :root { --selected-font: 'Inter', sans-serif; }
+    body { background-color: #ffffff; color: #111; }
+
+    /* The Billboard Design */
+    .billboard-container {
+      background: white;
+      padding: 40px 40px 10px 40px;
+      display: inline-block;
     }
-    .billboard-text {
-      animation: glow 2s infinite alternate;
-      white-space: nowrap;
-      font-family: 'Arial Black', sans-serif;
-      letter-spacing: -1px;
+
+    .billboard-frame {
+      background: #f3f4f6;
+      padding: 15px;
+      border: 10px solid #111;
+      box-shadow: 10px 10px 0px #e5e7eb;
+      width: 500px;
     }
-    .watermark {
-      position: absolute;
-      bottom: 5%;
-      right: 5%;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 0.8rem;
+
+    .billboard-display {
+      background: #ffffff;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      position: relative;
+    }
+
+    #billboardText {
+      font-family: var(--selected-font);
+      color: #000;
+      text-align: center;
+      padding: 0 20px;
+      word-break: break-all;
+    }
+
+    .billboard-legs {
+      display: flex;
+      justify-content: space-around;
+      width: 500px;
+    }
+
+    .leg { width: 20px; height: 40px; background: #111; }
+
+    .watermark-tag {
+      text-align: right;
+      font-family: sans-serif;
+      font-size: 12px;
       font-weight: bold;
+      color: #9ca3af;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .bg-option {
-      cursor: pointer;
-      border: 3px solid transparent;
-      transition: all 0.2s ease;
-      height: 60px;
-      object-fit: cover;
+
+    /* Scrollable Font Menu */
+    .font-menu {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .font-btn {
       width: 100%;
+      padding: 12px;
+      margin-bottom: 8px;
+      border: 2px solid #e5e7eb;
       border-radius: 8px;
+      text-align: left;
+      transition: 0.2s;
     }
-    .bg-option.selected {
-      border-color: #2563eb;
-      box-shadow: 0 0 10px #2563eb;
-    }
-    /* perspective container to make text look slightly angled */
-    .billboard-surface {
-      perspective: 1000px;
+    .font-btn.active {
+      border-color: #000;
+      background: #f9fafb;
+      font-weight: bold;
     }
   </style>
 </head>
-<body class="bg-slate-900 min-h-screen flex flex-col items-center p-6 text-white">
+<body class="p-10">
 
-  <h1 class="text-3xl font-bold mb-6">📢 Real Billboard Generator</h1>
+  <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+    
+    <div class="space-y-6">
+      <h1 class="text-5xl font-black italic tracking-tighter mb-8">TEXT TO IMAGE</h1>
+      
+      <div>
+        <label class="block text-xs font-bold uppercase mb-2">1. Your Message</label>
+        <textarea id="textInput" rows="2" class="w-full p-4 border-2 border-black rounded-none focus:bg-yellow-50 outline-none text-xl" placeholder="ENTER TEXT..."></textarea>
+      </div>
 
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mb-6 text-gray-800">
-    <label class="block text-gray-700 font-semibold mb-2">Enter your message:</label>
-    <input 
-      type="text" 
-      id="textInput" 
-      placeholder="YOUR AD HERE"
-      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-    >
+      <div>
+        <label class="block text-xs font-bold uppercase mb-2">2. Choose Font Style</label>
+        <div class="font-menu pr-2" id="fontGrid">
+          <button class="font-btn active" data-font="'Inter', sans-serif" style="font-family: 'Inter'">MODERN SANS</button>
+          <button class="font-btn" data-font="'Bebas Neue', cursive" style="font-family: 'Bebas Neue'">BOLD IMPACT</button>
+          <button class="font-btn" data-font="'Playfair Display', serif" style="font-family: 'Playfair Display'">ELEGANT SERIF</button>
+          <button class="font-btn" data-font="'Pacifico', cursive" style="font-family: 'Pacifico'">RETRO SCRIPT</button>
+          <button class="font-btn" data-font="'Permanent Marker', cursive" style="font-family: 'Permanent Marker'">MARKER STYLE</button>
+          <button class="font-btn" data-font="'Monoton', cursive" style="font-family: 'Monoton'">NEON LINE</button>
+          <button class="font-btn" data-font="'Roboto Mono', monospace" style="font-family: 'Roboto Mono'">TECH MONO</button>
+          <button class="font-btn" data-font="'Special Elite', cursive" style="font-family: 'Special Elite'">TYPEWRITER</button>
+          <button class="font-btn" data-font="'Outfit', sans-serif" style="font-family: 'Outfit'">GEOMETRIC</button>
+        </div>
+      </div>
 
-    <label class="block text-gray-700 font-semibold mt-4 mb-2">Choose Billboard Location:</label>
-    <div class="grid grid-cols-3 gap-3">
-      <img class="bg-option selected" 
-           data-src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80" 
-           src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=300&q=80" alt="Highway">
-      <img class="bg-option" 
-           data-src="https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=1200&q=80" 
-           src="https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=300&q=80" alt="Urban">
-      <img class="bg-option" 
-           data-src="https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=1200&q=80" 
-           src="https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=300&q=80" alt="Building">
+      <button id="downloadBtn" class="w-full bg-black text-white py-5 font-bold text-xl hover:scale-[1.02] transition-transform">
+        EXPORT PNG
+      </button>
     </div>
 
-    <button id="downloadBtn" class="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
-      📥 Save Advertisement
-    </button>
-  </div>
-
-  <div id="billboardContainer" class="relative w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
-    <img 
-      id="billboardImage"
-      src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80" 
-      alt="Billboard"
-      class="w-full"
-      crossorigin="anonymous"
-    >
-    
-    <div id="textOverlay" class="absolute top-[28%] left-[24%] w-[51%] h-[35%] flex items-center justify-center overflow-hidden">
-      <p id="billboardText" class="billboard-text text-white font-bold uppercase">
-        YOUR AD HERE
-      </p>
+    <div class="flex flex-col items-center justify-center bg-gray-50 rounded-2xl p-10 border-2 border-dashed border-gray-200">
+      <div id="captureArea" class="billboard-container">
+        <div class="billboard-frame">
+          <div class="billboard-display">
+            <p id="billboardText">YOUR TEXT</p>
+          </div>
+        </div>
+        <div class="billboard-legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+        <div class="watermark-tag">@azuki</div>
+      </div>
     </div>
-    
-    <div class="watermark">@azuki</div>
+
   </div>
 
   <script>
     const input = document.getElementById('textInput');
     const billboardText = document.getElementById('billboardText');
-    const billboardImage = document.getElementById('billboardImage');
     const downloadBtn = document.getElementById('downloadBtn');
-    const container = document.getElementById('billboardContainer');
-    const textOverlay = document.getElementById('textOverlay');
-    const bgOptions = document.querySelectorAll('.bg-option');
+    const fontBtns = document.querySelectorAll('.font-btn');
 
-    // Custom coordinates for each image to match the "hole" in the billboard
-    const layouts = {
-      "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=1200&q=80": { top: '28%', left: '24%', width: '51%', height: '35%', rotate: '0deg' },
-      "https://images.unsplash.com/photo-1518112166137-8590059344c5?auto=format&fit=crop&w=1200&q=80": { top: '15%', left: '33%', width: '30%', height: '55%', rotate: '0deg' },
-      "https://images.unsplash.com/photo-1610444315266-993d09a501a3?auto=format&fit=crop&w=1200&q=80": { top: '18%', left: '33%', width: '34%', height: '44%', rotate: '0deg' }
-    };
+    // Dynamic Font Resizer
+    function autoSize() {
+      const display = document.querySelector('.billboard-display');
+      let size = 120;
+      billboardText.style.fontSize = size + 'px';
 
-    function fitText() {
-      const containerWidth = textOverlay.clientWidth;
-      const textLength = billboardText.textContent.length || 1;
-      const fontSize = Math.min(60, (containerWidth * 1.8) / textLength);
-      billboardText.style.fontSize = fontSize + 'px';
+      while ((billboardText.offsetWidth > display.offsetWidth - 40 || 
+              billboardText.offsetHeight > display.offsetHeight - 20) && size > 10) {
+        size--;
+        billboardText.style.fontSize = size + 'px';
+      }
     }
 
     input.addEventListener('input', () => {
-      billboardText.textContent = input.value || 'YOUR AD HERE';
-      fitText();
+      billboardText.textContent = input.value || 'YOUR TEXT';
+      autoSize();
     });
 
-    window.addEventListener('resize', fitText);
-
-    bgOptions.forEach(img => {
-      img.addEventListener('click', () => {
-        bgOptions.forEach(opt => opt.classList.remove('selected'));
-        img.classList.add('selected');
-        
-        const src = img.dataset.src;
-        billboardImage.src = src;
-        
-        // Update overlay position based on the selected image
-        const layout = layouts[src];
-        textOverlay.style.top = layout.top;
-        textOverlay.style.left = layout.left;
-        textOverlay.style.width = layout.width;
-        textOverlay.style.height = layout.height;
-        
-        setTimeout(fitText, 50);
+    // Font Switcher
+    fontBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        fontBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.documentElement.style.setProperty('--selected-font', btn.dataset.font);
+        setTimeout(autoSize, 50);
       });
     });
 
+    // Capture & Download
     downloadBtn.addEventListener('click', () => {
-      html2canvas(container, { 
-        useCORS: true,
-        scale: 2 // Higher quality download
+      html2canvas(document.getElementById('captureArea'), {
+        backgroundColor: "#ffffff",
+        scale: 3
       }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'my-billboard.png';
+        link.download = 'azuki-design.png';
         link.href = canvas.toDataURL();
         link.click();
       });
     });
 
-    // Initial fit
-    setTimeout(fitText, 500);
+    window.onload = autoSize;
   </script>
-
 </body>
   </html>
